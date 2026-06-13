@@ -706,8 +706,17 @@ class DashboardScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             ...meal.ingredients.entries.map((entry) {
-              final hasSubApplied = plan.substitutionsApplied.values.contains(entry.key);
+              String? originalIngredient;
+              plan.substitutionsApplied.forEach((key, value) {
+                if (value == entry.key) {
+                  originalIngredient = key;
+                }
+              });
+              final hasSubApplied = originalIngredient != null;
               final unit = meal.ingredientUnits[entry.key] ?? '';
+              final ingredientLabel = hasSubApplied
+                  ? '${entry.key} (substituted for $originalIngredient)'
+                  : entry.key;
               
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 3.0),
@@ -717,7 +726,7 @@ class DashboardScreen extends ConsumerWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        '${entry.key} (${(entry.value * plan.numPeople).toStringAsFixed(0)} $unit)',
+                        '$ingredientLabel (${(entry.value * plan.numPeople).toStringAsFixed(0)} $unit)',
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: hasSubApplied ? FontWeight.bold : FontWeight.normal,
